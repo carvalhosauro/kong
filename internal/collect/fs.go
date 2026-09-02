@@ -7,9 +7,10 @@ import (
 )
 
 // joinFS joins fsRoot with path elements.
+// Empty fsRoot means the live host filesystem (absolute paths from /).
 func joinFS(fsRoot string, elems ...string) string {
 	if fsRoot == "" {
-		return filepath.Join(elems...)
+		return filepath.Join(append([]string{string(filepath.Separator)}, elems...)...)
 	}
 	return filepath.Join(append([]string{fsRoot}, elems...)...)
 }
