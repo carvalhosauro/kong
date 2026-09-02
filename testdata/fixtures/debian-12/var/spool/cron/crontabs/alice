@@ -1,0 +1,11 @@
+MAILTO=admin@example.com
+PATH=/home/alice/bin:/usr/bin
+
+# Alice's daily report
+0 8 * * * /home/alice/bin/daily-report.sh
+
+# command with stdin via %
+0 9 * * * echo hello%world
+
+# escaped percent
+0 10 * * * echo literal \%sign

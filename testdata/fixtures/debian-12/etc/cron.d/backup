@@ -1,0 +1,8 @@
+# backup job
+0 3 * * * root /opt/scripts/backup.sh
+
+# OR rule test: day 13 OR Friday
+0 0 13 * 5 root /opt/scripts/or-rule.sh
+
+# reboot job
+@reboot root /opt/scripts/on-boot.sh
