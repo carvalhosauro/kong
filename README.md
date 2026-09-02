@@ -280,7 +280,7 @@ git push -u origin main
 
 | Field | Suggestion |
 |-------|------------|
-| Description | `See every cron job on your Linux box — one static binary` |
+| Description | `See every cron job on your Linux box, one static binary` |
 | Topics | `cron`, `linux`, `devops`, `cli`, `monitoring`, `go`, `bare-metal` |
 
 ### 3. First release
