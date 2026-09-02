@@ -19,12 +19,12 @@ func JSON(w io.Writer, result model.CollectResult) error {
 
 func Table(w io.Writer, result model.CollectResult) error {
 	if result.Partial {
-		fmt.Fprintf(w, "partial: true (inaccessible: %s)\n", strings.Join(result.InaccessibleSources, ", "))
+		_, _ = fmt.Fprintf(w, "partial: true (inaccessible: %s)\n", strings.Join(result.InaccessibleSources, ", "))
 	}
 	tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(tw, "SOURCE\tUSER\tSCHEDULE\tNEXT\tLAST START\tSTATUS\tCOMMAND")
+	_, _ = fmt.Fprintln(tw, "SOURCE\tUSER\tSCHEDULE\tNEXT\tLAST START\tSTATUS\tCOMMAND")
 	for _, j := range result.Jobs {
-		fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+		_, _ = fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			j.Source,
 			j.User,
 			j.Schedule,
@@ -34,7 +34,7 @@ func Table(w io.Writer, result model.CollectResult) error {
 			truncate(j.Command, 60),
 		)
 		for _, warn := range j.Warnings {
-			fmt.Fprintf(tw, "\t\t\t\t\twarning: %s\n", warn)
+			_, _ = fmt.Fprintf(tw, "\t\t\t\t\twarning: %s\n", warn)
 		}
 	}
 	return tw.Flush()

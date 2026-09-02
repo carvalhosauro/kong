@@ -6,8 +6,19 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  test:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,14 +26,26 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          cache: true
+
+      # Single source of truth: CI runs the same make targets as local dev.
+      - name: Install tools
+        run: make tools
+
+      - name: Format check
+        run: make fmt-check
+
+      - name: Lint
+        run: make lint
 
       - name: Test
-        run: go test ./...
-
-      - name: Vet
-        run: go vet ./...
+        run: make test
 
       - name: Build
-        env:
-          CGO_ENABLED: "0"
-        run: go build -o /dev/null ./cmd/kong
+        run: make build
+
+      - name: Validate release config
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: "~> v2"
+          args: check

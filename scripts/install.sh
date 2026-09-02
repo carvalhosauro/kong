@@ -106,24 +106,32 @@ install_bin() {
   fi
 }
 
-URL="https://github.com/${KONG_GITHUB_REPO}/releases/download/v${KONG_VERSION}/kong_${KONG_VERSION}_linux_${ARCH}.tar.gz"
-CHECKSUM_URL="${URL}.sha256"
+ARCHIVE="kong_${KONG_VERSION}_linux_${ARCH}.tar.gz"
+URL="https://github.com/${KONG_GITHUB_REPO}/releases/download/v${KONG_VERSION}/${ARCHIVE}"
+CHECKSUMS_URL="https://github.com/${KONG_GITHUB_REPO}/releases/download/v${KONG_VERSION}/checksums.txt"
 
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 
 echo "→ downloading kong v${KONG_VERSION} (${OS}/${ARCH})"
-curl -fsSL "$URL" -o "$tmpdir/kong.tar.gz"
+curl -fsSL "$URL" -o "$tmpdir/${ARCHIVE}"
 
-if curl -fsSL "$CHECKSUM_URL" -o "$tmpdir/kong.tar.gz.sha256" 2>/dev/null; then
-  if command -v sha256sum >/dev/null 2>&1; then
-    (cd "$tmpdir" && sha256sum -c kong.tar.gz.sha256)
-  elif command -v shasum >/dev/null 2>&1; then
-    (cd "$tmpdir" && shasum -a 256 -c kong.tar.gz.sha256)
+if curl -fsSL "$CHECKSUMS_URL" -o "$tmpdir/checksums.txt" 2>/dev/null; then
+  expected="$(grep " ${ARCHIVE}$" "$tmpdir/checksums.txt" | awk '{print $1}')"
+  if [[ -n "$expected" ]]; then
+    if command -v sha256sum >/dev/null 2>&1; then
+      actual="$(sha256sum "$tmpdir/${ARCHIVE}" | awk '{print $1}')"
+    elif command -v shasum >/dev/null 2>&1; then
+      actual="$(shasum -a 256 "$tmpdir/${ARCHIVE}" | awk '{print $1}')"
+    fi
+    if [[ -n "${actual:-}" && "$actual" != "$expected" ]]; then
+      err "checksum mismatch for ${ARCHIVE}"
+      exit 1
+    fi
   fi
 fi
 
-tar -xzf "$tmpdir/kong.tar.gz" -C "$tmpdir"
+tar -xzf "$tmpdir/${ARCHIVE}" -C "$tmpdir"
 install_bin "$tmpdir/kong" "${KONG_INSTALL_DIR}/kong"
 
 echo ""

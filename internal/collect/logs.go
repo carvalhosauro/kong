@@ -73,22 +73,28 @@ func readJournalCronEntries() []cronLogEntry {
 func readSyslogCronEntries() []cronLogEntry {
 	paths := []string{"/var/log/syslog", "/var/log/cron", "/var/log/messages"}
 	for _, path := range paths {
-		f, err := os.Open(path)
-		if err != nil {
-			continue
+		if entries := readSyslogFile(path); entries != nil {
+			return entries
 		}
-		defer f.Close()
-		var lines []string
-		scanner := bufio.NewScanner(f)
-		for scanner.Scan() {
-			lines = append(lines, scanner.Text())
-		}
-		if len(lines) > 500 {
-			lines = lines[len(lines)-500:]
-		}
-		return parseCronLogOutput(strings.Join(lines, "\n"))
 	}
 	return nil
+}
+
+func readSyslogFile(path string) []cronLogEntry {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil
+	}
+	defer func() { _ = f.Close() }()
+	var lines []string
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	if len(lines) > 500 {
+		lines = lines[len(lines)-500:]
+	}
+	return parseCronLogOutput(strings.Join(lines, "\n"))
 }
 
 func parseCronLogOutput(content string) []cronLogEntry {

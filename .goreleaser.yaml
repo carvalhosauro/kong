@@ -1,0 +1,56 @@
+# GoReleaser v2 — cross-platform binaries + GitHub Release.
+# Validate locally: make release-check ; dry-run: make snapshot
+version: 2
+
+project_name: kong
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: kong
+    main: ./cmd/kong
+    binary: kong
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{ .Version }}
+
+archives:
+  - id: kong
+    formats:
+      - tar.gz
+    # Must match scripts/install.sh: kong_<version>_linux_<arch>.tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  use: github
+  sort: asc
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\(.+\))??!?:.+$'
+      order: 0
+    - title: Fixes
+      regexp: '^.*?fix(\(.+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "^ci:"
+
+release:
+  draft: false

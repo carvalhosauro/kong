@@ -5,12 +5,12 @@ import "time"
 type Source string
 
 const (
-	SourceUserCrontab   Source = "user_crontab"
-	SourceEtcCrontab    Source = "etc_crontab"
-	SourceCronD         Source = "cron_d"
-	SourceRunParts      Source = "run_parts"
-	SourceAnacron       Source = "anacron"
-	SourceSystemdTimer  Source = "systemd_timer"
+	SourceUserCrontab  Source = "user_crontab"
+	SourceEtcCrontab   Source = "etc_crontab"
+	SourceCronD        Source = "cron_d"
+	SourceRunParts     Source = "run_parts"
+	SourceAnacron      Source = "anacron"
+	SourceSystemdTimer Source = "systemd_timer"
 )
 
 type Status string

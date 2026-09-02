@@ -22,8 +22,6 @@ type parsedLine struct {
 	schedule string
 	user     string
 	command  string
-	comment  string
-	lineNum  int
 }
 
 type fileEnv struct {
@@ -227,4 +225,3 @@ func copyEnv(in map[string]string) map[string]string {
 	}
 	return out
 }
-
