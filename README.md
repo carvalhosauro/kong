@@ -10,6 +10,10 @@
   <img src="https://img.shields.io/badge/binary-~3MB-lightgrey" alt="binary size">
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/kong-list.png" alt="kong list output showing cron jobs from multiple sources" width="900">
+</p>
+
 ---
 
 It's 2am. Something broke on a bare-metal box. Someone asks what cron jobs run there.
@@ -24,6 +28,10 @@ kong is a small CLI I wrote for that. One static binary, no agent, no database, 
 curl -fsSL https://raw.githubusercontent.com/carvalhosauro/kong/main/scripts/install.sh | bash
 kong list
 ```
+
+<p align="center">
+  <img src="docs/screenshots/kong-install.png" alt="one-line install with curl" width="700">
+</p>
 
 ---
 
@@ -74,32 +82,32 @@ tar xzf kong_0.1.0_linux_amd64.tar.gz && sudo mv kong /usr/local/bin/
 > Push tag `v0.1.0` to GitHub first. The install script downloads binaries from [Releases](https://github.com/carvalhosauro/kong/releases). Until then, use `go install`.
 
 <details>
-<summary>Observações: requisitos para o install funcionar</summary>
+<summary>Install requirements</summary>
 
-### No GitHub
+### On GitHub
 
-| Requisito | Por quê |
-|-----------|---------|
-| Repo público em `github.com/carvalhosauro/kong` | `raw.githubusercontent.com` serve o `install.sh` |
-| Branch `main` com `scripts/install.sh` | é o que o `curl` baixa |
-| Pelo menos uma release (ex: `v0.1.0`) | o script baixa o binário de `releases/download/` |
-| Artefatos `kong_<versão>_linux_<arch>.tar.gz` | gerados pelo workflow de release |
+| Requirement | Why |
+|-------------|-----|
+| Public repo at `github.com/carvalhosauro/kong` | `raw.githubusercontent.com` serves `install.sh` |
+| Branch `main` with `scripts/install.sh` | what `curl` downloads |
+| At least one release (e.g. `v0.1.0`) | script pulls binary from `releases/download/` |
+| Artifacts named `kong_<version>_linux_<arch>.tar.gz` | built by release workflow |
 
-Sem release publicada: `could not resolve latest release from GitHub`.
+Without a published release: `could not resolve latest release from GitHub`.
 
-### Na máquina
+### On the host
 
-| Requisito | Obrigatório |
-|-----------|:-----------:|
-| Linux | sim |
-| amd64 ou arm64 | sim |
-| curl, tar, bash | sim |
-| grep | sim (só com `latest`) |
-| HTTPS para github.com e raw.githubusercontent.com | sim |
-| root | não |
-| Go, Docker, agente | não |
+| Requirement | Required |
+|-------------|:--------:|
+| Linux | yes |
+| amd64 or arm64 | yes |
+| curl, tar, bash | yes |
+| grep | yes (only with `latest`) |
+| HTTPS to github.com and raw.githubusercontent.com | yes |
+| root | no |
+| Go, Docker, agent | no |
 
-O script instala em `/usr/local/bin` (com `sudo` se precisar) ou `~/.local/bin`. Se for o segundo:
+Installs to `/usr/local/bin` (with `sudo` if needed) or `~/.local/bin`. If using the latter:
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
@@ -108,15 +116,15 @@ export PATH="$HOME/.local/bin:$PATH"
 </details>
 
 <details>
-<summary>Observações: como atualizar</summary>
+<summary>Upgrading</summary>
 
-Mesmo comando do install. Sobrescreve o binário.
+Same command as install. Overwrites the existing binary.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/carvalhosauro/kong/main/scripts/install.sh | bash
 ```
 
-Por padrão pega a última release (`KONG_VERSION=latest`).
+Defaults to the latest release (`KONG_VERSION=latest`).
 
 ```bash
 kong version
@@ -130,23 +138,17 @@ KONG_INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/car
 
 ---
 
-## Example output
-
-```bash
-$ kong list
-SOURCE        USER   SCHEDULE     NEXT                       LAST START           STATUS   COMMAND
-cron_d        root   0 3 * * *    2026-09-02T03:00:00-03:00  2026-09-01T03:00:12  unknown  /opt/scripts/backup.sh
-user_crontab  deploy 0 */6 * * *  2026-09-02T00:00:00-03:00  -                    unknown  /home/deploy/sync.sh
-systemd_timer system @timer        2026-09-02T01:30:00-03:00  2026-09-01T19:30:01  success  systemd:certbot.service
-cron_d        root   0 0 * * *    2026-09-02T00:00:00-03:00  -                    unknown  /opt/scripts/never-runs.sh
-                                                              warning: ignored_by_cron: files with '.' in name are skipped by cron
-```
+## JSON output
 
 ```bash
 kong list --json | jq '.jobs[] | select(.warnings != null)'
 kong list --user deploy --json
-kong list --source systemd_timer
+kong list --source cron_d
 ```
+
+<p align="center">
+  <img src="docs/screenshots/kong-list-json.png" alt="kong list --json output" width="900">
+</p>
 
 ---
 
@@ -251,7 +253,17 @@ make build && make test
 ./bin/kong list --fs-root testdata/fixtures/debian-12
 ```
 
-Release: tag `v0.1.0`, GitHub Actions builds linux/amd64 + arm64 tarballs, install script works.
+### Regenerate README screenshots
+
+Runs a Debian container with sample cron jobs, executes kong, renders PNGs to `docs/screenshots/`:
+
+```bash
+make screenshots   # requires Docker + python3-pillow
+```
+
+### Release
+
+Tag `v0.1.0`, GitHub Actions builds linux/amd64 + arm64 tarballs, install script works.
 
 ```bash
 git tag v0.1.0 && git push origin v0.1.0
@@ -305,7 +317,9 @@ kong/
 ├── internal/schedule/
 ├── internal/render/
 ├── internal/model/
+├── docker/demo/         # container for README screenshots
 ├── scripts/install.sh
+├── docs/screenshots/
 ├── testdata/fixtures/
 ├── .github/workflows/
 ├── Makefile
@@ -340,21 +354,3 @@ Wiki, Discord, separate website. Branch protection until you have contributors.
 <p align="center">
   kong: cron + go, minus the archaeology
 </p>
-
----
-
-<details>
-<summary>Português</summary>
-
-Ferramenta para listar cron jobs numa máquina Linux: crontabs, `/etc/cron.d`, run-parts, anacron, systemd timers. Um comando.
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/carvalhosauro/kong/main/scripts/install.sh | bash
-kong list
-```
-
-Fiz isso porque opero bare metal e cansava de abrir seis arquivos diferentes só para saber o que está agendado. Binário estático, sem agente, sem banco.
-
-Para atualizar: mesmo `curl | bash`. Sobrescreve o binário com a última release.
-
-</details>
