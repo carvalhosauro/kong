@@ -1,0 +1,2 @@
+0 */6 * * * /home/deploy/bin/sync.sh
+15 2 * * 1-5 /home/deploy/bin/etl.sh

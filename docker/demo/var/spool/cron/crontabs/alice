@@ -1,0 +1,6 @@
+MAILTO=ops@example.com
+PATH=/home/alice/bin:/usr/bin
+
+# daily report
+0 8 * * * /home/alice/bin/daily-report.sh
+0 9 * * * echo hello%world

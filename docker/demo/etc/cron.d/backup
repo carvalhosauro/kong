@@ -1,0 +1,7 @@
+# nightly backup
+0 3 * * * root /opt/scripts/backup.sh
+
+# OR rule: day 13 OR Friday
+0 0 13 * 5 root /opt/scripts/or-rule.sh
+
+@reboot root /opt/scripts/on-boot.sh

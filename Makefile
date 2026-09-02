@@ -1,7 +1,7 @@
 VERSION ?= dev
 LDFLAGS := -s -w -X main.version=$(VERSION)
 
-.PHONY: build test lint install release-local
+.PHONY: build test lint install release-local screenshots
 
 build:
 	CGO_ENABLED=0 go build -ldflags="$(LDFLAGS)" -o bin/kong ./cmd/kong
@@ -25,3 +25,6 @@ release-local:
 		tar -czf "$$out.tar.gz" -C "$$out" kong; \
 		sha256sum "$$out.tar.gz" > "$$out.tar.gz.sha256"; \
 	done
+
+screenshots:
+	bash scripts/generate-screenshots.sh
